@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
+import '../services/api_service.dart';
 import '../services/storage_service.dart';
 
 class AuthProvider with ChangeNotifier {
-  final StorageService _storageService = StorageService();
+  final ApiService _apiService = ApiService();
+  final StorageService _storageService = StorageService(); // Keep for other settings if needed
   User? _currentUser;
   bool _isLoggedIn = false;
 
@@ -11,25 +13,19 @@ class AuthProvider with ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
 
   Future<void> checkLoginStatus() async {
-    _isLoggedIn = await _storageService.getLoginState();
-    if (_isLoggedIn) {
-      _currentUser = await _storageService.getUser();
-    }
+    final token = await _apiService.getToken();
+    _isLoggedIn = token != null;
     notifyListeners();
   }
 
   Future<bool> login(String email, String password) async {
-    // In a real app, this would verify against a backend.
-    // For this demo, we'll check against the stored user or allow a "demo" login if no user exists yet
-    // BUT the requirement says "Sign-Up Page... Automatically redirect to login".
-    // So we should expect a stored user.
+    // We treat 'email' as 'username' for the backend
+    final success = await _apiService.login(email, password);
     
-    final storedUser = await _storageService.getUser();
-    
-    if (storedUser != null && storedUser.email == email && storedUser.password == password) {
-      _currentUser = storedUser;
+    if (success) {
       _isLoggedIn = true;
-      await _storageService.saveLoginState(true);
+      // create a temporary user object since API doesn't return full profile yet
+      _currentUser = User(name: email, email: email, phone: '', password: '');
       notifyListeners();
       return true;
     }
@@ -38,15 +34,14 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signUp(User user) async {
-    await _storageService.saveUser(user);
-    // Auto login after signup? Requirements say "Automatically redirect to login".
-    // So we just save the user.
+    await _apiService.register(user.name, user.email, user.password);
+    // After signup, user usually needs to login. 
   }
 
   Future<void> logout() async {
+    await _apiService.clearToken();
     _isLoggedIn = false;
     _currentUser = null;
-    await _storageService.saveLoginState(false);
     notifyListeners();
   }
 }

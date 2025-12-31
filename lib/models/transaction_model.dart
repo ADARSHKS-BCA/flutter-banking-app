@@ -25,6 +25,17 @@ class TransactionModel {
   }
 
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
+    // Handle API response format
+    if (map.containsKey('transaction_type')) {
+       return TransactionModel(
+        id: map['id'].toString(), // API returns int id
+        type: map['transaction_type'] == 'DEPOSIT' ? TransactionType.deposit : TransactionType.withdraw,
+        amount: double.tryParse(map['amount'].toString()) ?? 0.0,
+        date: DateTime.parse(map['timestamp']),
+      );
+    }
+    
+    // Fallback for old local storage format (if any)
     return TransactionModel(
       id: map['id'] ?? '',
       type: TransactionType.values[map['type'] ?? 0],
