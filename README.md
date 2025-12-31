@@ -18,7 +18,6 @@ SecureBank is a modern, secure, and user-friendly banking application built with
 - **State Management**: [Provider](https://pub.dev/packages/provider)
 - **Backend/Auth**: [Firebase Authentication](https://firebase.google.com/docs/auth)
 - **Local Storage**: [SharedPreferences](https://pub.dev/packages/shared_preferences)
-- **Formatting**: [Intl](https://pub.dev/packages/intl)
 
 ## 📂 Project Structure
 
