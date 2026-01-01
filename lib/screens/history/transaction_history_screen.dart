@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/bank_provider.dart';
+import '../../models/transaction_model.dart'; // Added Import
 import '../../utils/constants.dart';
 import 'package:intl/intl.dart';
 
@@ -36,7 +37,34 @@ class TransactionHistoryScreen extends StatelessWidget {
               itemCount: bankProvider.transactions.length,
               itemBuilder: (context, index) {
                 final transaction = bankProvider.transactions[index];
-                final isDeposit = transaction.type.index == 0;
+                
+                IconData icon;
+                Color color;
+                String title;
+                String prefix;
+
+                switch (transaction.type) {
+                  case TransactionType.deposit:
+                    icon = Icons.arrow_downward;
+                    color = AppColors.success;
+                    title = 'Deposit';
+                    prefix = '+';
+                    break;
+                  case TransactionType.transfer:
+                     icon = Icons.swap_horiz;
+                     color = AppColors.primaryBlue; 
+                     title = 'Transfer';
+                     prefix = '-';
+                     break;
+                  case TransactionType.withdraw:
+                  default:
+                    icon = Icons.arrow_upward;
+                    color = AppColors.error;
+                    title = 'Withdrawal';
+                    prefix = '-';
+                    break;
+                }
+
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   shape: RoundedRectangleBorder(
@@ -44,25 +72,20 @@ class TransactionHistoryScreen extends StatelessWidget {
                   ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: isDeposit
-                          ? AppColors.success.withOpacity(0.1)
-                          : AppColors.error.withOpacity(0.1),
-                      child: Icon(
-                        isDeposit ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: isDeposit ? AppColors.success : AppColors.error,
-                      ),
+                      backgroundColor: color.withOpacity(0.1),
+                      child: Icon(icon, color: color),
                     ),
                     title: Text(
-                      isDeposit ? 'Deposit' : 'Withdrawal',
+                      title,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       DateFormat('MMM d, yyyy h:mm a').format(transaction.date),
                     ),
                     trailing: Text(
-                      '${isDeposit ? "+" : "-"}${currencyFormat.format(transaction.amount)}',
+                      '$prefix${currencyFormat.format(transaction.amount)}',
                       style: TextStyle(
-                        color: isDeposit ? AppColors.success : AppColors.error,
+                        color: color,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),

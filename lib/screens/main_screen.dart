@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/bank_provider.dart';
-import '../providers/auth_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/history/transaction_history_screen.dart';
-import '../screens/auth/login_screen.dart'; // For simple profile logout
+import '../screens/profile/profile_screen.dart';
 import '../utils/constants.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,11 +15,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-
-  // We need a simple Profile screen or just a placeholder for now
-  // Since the user asked to tapping profile icon navigates to Profile screen, 
-  // we can use index 2 for that.
   
   @override
   void initState() {
@@ -29,102 +24,77 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Define screens here to access context if needed, or keeping them static is fine
+    final navigationProvider = Provider.of<NavigationProvider>(context);
+    
     final List<Widget> screens = [
       const HomeScreen(),
       const TransactionHistoryScreen(),
-      const Center(child: _ProfilePlaceholder()), // Simple Profile Screen
+      const ProfileScreen(),
     ];
 
     return Scaffold(
-      body: screens[_selectedIndex],
+      body: screens[navigationProvider.currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
               offset: const Offset(0, -5),
             ),
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
+          currentIndex: navigationProvider.currentIndex,
+          onTap: (index) => navigationProvider.setIndex(index),
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           selectedItemColor: AppColors.primaryBlue,
           unselectedItemColor: Colors.grey.shade400,
           showUnselectedLabels: true,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, height: 1.5),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12, height: 1.5),
           elevation: 0,
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.home_rounded, size: 28),
+              ),
+              activeIcon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.home_rounded, size: 30),
+              ),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.history_rounded),
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.history_rounded, size: 28),
+              ),
+              activeIcon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.history_rounded, size: 30),
+              ),
               label: 'History',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded),
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.person_rounded, size: 28),
+              ),
+              activeIcon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.person_rounded, size: 30),
+              ),
               label: 'Profile',
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// Simple internal widget for Profile Tab until a full screen is made
-class _ProfilePlaceholder extends StatelessWidget {
-  const _ProfilePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).currentUser;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const CircleAvatar(
-          radius: 50,
-          backgroundColor: AppColors.primaryBlue,
-          child: Icon(Icons.person, size: 60, color: Colors.white),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          user?.name ?? 'User Name',
-          style: AppTextStyles.heading,
-        ),
-        Text(
-          user?.email ?? 'email@example.com',
-          style: AppTextStyles.body,
-        ),
-        const SizedBox(height: 32),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.redAccent,
-            foregroundColor: Colors.white,
-          ),
-          onPressed: () {
-            Provider.of<AuthProvider>(context, listen: false).logout();
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-            );
-          },
-          child: const Text('Logout'),
-        ),
-      ],
     );
   }
 }

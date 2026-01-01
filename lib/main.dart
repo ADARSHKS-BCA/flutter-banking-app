@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/bank_provider.dart';
+import 'providers/navigation_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
@@ -20,6 +21,7 @@ class SecureBankApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BankProvider()),
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
       ],
       child: MaterialApp(
         title: 'Secure Bank',

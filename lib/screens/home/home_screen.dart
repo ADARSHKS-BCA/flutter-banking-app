@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/bank_provider.dart';
+import '../../providers/navigation_provider.dart';
 import '../../screens/auth/login_screen.dart';
 import '../../screens/operations/deposit_screen.dart';
 import '../../screens/operations/withdraw_screen.dart';
@@ -33,43 +34,47 @@ class HomeScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Welcome back,',
                         style: TextStyle(
-                          color: AppColors.textLight,
-                          fontSize: 14,
+                          color: AppColors.textLight.withOpacity(0.8),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         user?.name ?? 'User',
                         style: const TextStyle(
                           color: AppColors.textDark,
-                          fontSize: 20,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
                         ),
                       ),
                     ],
                   ),
                   InkWell(
                     onTap: () {
-                      // Navigate to Profile Tab (index 2) via MainScreen logic if possible
-                      // Or just let the bottom nav handle it. 
-                      // Without a direct link to MainScreen state, this might be tricky.
-                      // For now, we can just show a simple snackbar or rely on bottom nav.
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Go to Profile Tab')),
-                      );
+                      Provider.of<NavigationProvider>(context, listen: false).setIndex(2);
                     },
-                    child: CircleAvatar(
-                      radius: 24,
-                      backgroundColor: AppColors.secondaryBlue,
-                      child: Text(
-                        user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                    borderRadius: BorderRadius.circular(50),
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.primaryBlue.withOpacity(0.2), width: 2),
+                      ),
+                      child: CircleAvatar(
+                        radius: 26,
+                        backgroundColor: AppColors.secondaryBlue,
+                        child: Text(
+                          user?.name.substring(0, 1).toUpperCase() ?? 'U',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -79,21 +84,22 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // 2. Account Card (Blue)
+              // 2. Account Card (Blue)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [AppColors.primaryBlue, AppColors.secondaryBlue],
+                    colors: [Color(0xFF1523A8), Color(0xFF6C27B8)], // Deeper, richer gradient
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryBlue.withOpacity(0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+                      color: AppColors.primaryBlue.withOpacity(0.5),
+                      blurRadius: 25,
+                      offset: const Offset(0, 12),
                     ),
                   ],
                 ),
@@ -102,42 +108,72 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         const Text(
-                          'Total Balance',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
+                         Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Text(
+                              'Total Balance',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.85),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              currencyFormat.format(bankProvider.balance),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -1.0,
+                              ),
+                            ),
+                           ],
+                         ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 24),
                         ),
-                        Icon(Icons.account_balance_wallet, color: Colors.white.withOpacity(0.8)),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      currencyFormat.format(bankProvider.balance),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Note: Account Number',
-                          style: TextStyle(color: Colors.white60, fontSize: 12),
+                        Row(
+                          children: [
+                            Text(
+                              '**** **** **** ',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 16,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            Text(
+                              user?.phone.isNotEmpty == true && user!.phone.length >= 4 
+                                  ? user.phone.substring(user.phone.length - 4) 
+                                  : "1234",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '**** **** **** ${user?.phone.isNotEmpty == true && user!.phone.length >= 4 ? user.phone.substring(user.phone.length - 4) : "1234"}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            letterSpacing: 2.0,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Image.asset(
+                          'assets/chip.png', // Placeholder logic if assets existed, but using simple Icon as fallback if no asset
+                          height: 24,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.nfc, color: Colors.white70),
                         ),
                       ],
                     ),
@@ -161,7 +197,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   _buildActionButton(
                     context,
-                    icon: Icons.arrow_downward,
+                    icon: Icons.arrow_downward_rounded,
                     label: 'Deposit',
                     color: Colors.green,
                     onTap: () => Navigator.push(
@@ -171,22 +207,23 @@ class HomeScreen extends StatelessWidget {
                   ),
                   _buildActionButton(
                     context,
-                    icon: Icons.arrow_upward,
+                    icon: Icons.swap_horiz_rounded,
+                    label: 'Transfer',
+                    color: AppColors.primaryBlue,
+                    isPrimary: true, // Emphasize transfer
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TransferScreen()),
+                    ),
+                  ),
+                  _buildActionButton(
+                    context,
+                    icon: Icons.arrow_upward_rounded,
                     label: 'Withdraw',
                     color: Colors.orange,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const WithdrawScreen()),
-                    ),
-                  ),
-                  _buildActionButton(
-                    context,
-                    icon: Icons.swap_horiz,
-                    label: 'Transfer',
-                    color: AppColors.primaryBlue,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const TransferScreen()),
                     ),
                   ),
                 ],
@@ -203,40 +240,46 @@ class HomeScreen extends StatelessWidget {
     required String label,
     required Color color,
     required VoidCallback onTap,
+    bool isPrimary = false,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(24),
       child: Container(
-        width: 100, // Fixed width for uniformity
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        width: 105,
+        padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isPrimary ? AppColors.primaryBlue : Colors.white,
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: isPrimary ? AppColors.primaryBlue.withOpacity(0.3) : Colors.black.withOpacity(0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
+          border: isPrimary ? null : Border.all(color: Colors.grey.shade100, width: 1),
         ),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: isPrimary ? Colors.white.withOpacity(0.2) : color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(
+                icon, 
+                color: isPrimary ? Colors.white : color, 
+                size: 28
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Text(
               label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textDark,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPrimary ? Colors.white : AppColors.textDark,
                 fontSize: 14,
               ),
             ),

@@ -35,6 +35,26 @@ class _TransferScreenState extends State<TransferScreen> {
       return;
     }
 
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Transfer'),
+        content: Text('Send \$$amount to $recipient?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     setState(() => _isLoading = true);
 
     try {
@@ -67,35 +87,78 @@ class _TransferScreenState extends State<TransferScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Transfer Money'),
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Send money to another user',
-              style: AppTextStyles.body,
-              textAlign: TextAlign.center,
-            ),
+             // Balance Context
+             Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.primaryBlue.withOpacity(0.1)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.account_balance_wallet_outlined, size: 20, color: AppColors.primaryBlue.withOpacity(0.8)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Balance: \$${Provider.of<BankProvider>(context).balance.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue.withOpacity(0.8),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+             ),
             const SizedBox(height: 32),
+            
+            const Text(
+              'Recipient Details',
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.w600, 
+                color: AppColors.textLight
+              ),
+            ),
+            const SizedBox(height: 12),
             CustomTextField(
               label: 'Recipient Username',
               controller: _recipientController,
-              prefixIcon: Icons.person_search,
+              prefixIcon: Icons.person_search_rounded,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+            
+            const Text(
+              'Transfer Amount',
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.w600, 
+                color: AppColors.textLight
+              ),
+            ),
+            const SizedBox(height: 12),
             CustomTextField(
               label: 'Amount',
               controller: _amountController,
-              keyboardType: TextInputType.number,
-              prefixIcon: Icons.attach_money,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              prefixIcon: Icons.attach_money_rounded,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
+            
             PrimaryButton(
               text: 'Transfer Now',
               onPressed: _handleTransfer,

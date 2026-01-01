@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-enum TransactionType { deposit, withdraw }
+enum TransactionType { deposit, withdraw, transfer }
 
 class TransactionModel {
   final String id;
@@ -27,9 +27,19 @@ class TransactionModel {
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     // Handle API response format
     if (map.containsKey('transaction_type')) {
+       TransactionType tType;
+       final typeStr = map['transaction_type'];
+       if (typeStr == 'DEPOSIT') {
+         tType = TransactionType.deposit;
+       } else if (typeStr == 'TRANSFER') {
+         tType = TransactionType.transfer;
+       } else {
+         tType = TransactionType.withdraw; 
+       }
+
        return TransactionModel(
         id: map['id'].toString(), // API returns int id
-        type: map['transaction_type'] == 'DEPOSIT' ? TransactionType.deposit : TransactionType.withdraw,
+        type: tType,
         amount: double.tryParse(map['amount'].toString()) ?? 0.0,
         date: DateTime.parse(map['timestamp']),
       );

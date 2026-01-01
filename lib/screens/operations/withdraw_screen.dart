@@ -65,65 +65,99 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
+        child: Column(
+          children: [
+            // Available Balance Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.orange.shade400, Colors.orange.shade700],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Available Balance:', style: AppTextStyles.body),
-                    Text(
-                      '\$${balance.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: AppColors.primaryBlue,
-                      ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Available\nBalance',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
                     ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    '\$${balance.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'Enter Amount',
-                style: AppTextStyles.subHeading,
+            ),
+            const SizedBox(height: 40),
+            
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Withdraw Amount',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: AppColors.textDark,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomTextField(
+                    label: 'Amount',
+                    controller: _amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    prefixIcon: Icons.attach_money_rounded,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter an amount';
+                      }
+                      final amount = double.tryParse(value);
+                      if (amount == null || amount <= 0) {
+                        return 'Please enter a valid positive amount';
+                      }
+                      if (amount > balance) {
+                        return 'Insufficient funds';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  PrimaryButton(
+                    text: 'Confirm Withdrawal',
+                    onPressed: _withdraw,
+                    isLoading: _isLoading,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                label: 'Amount',
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Please enter a valid positive amount';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              PrimaryButton(
-                text: 'Withdraw',
-                onPressed: _withdraw,
-                isLoading: _isLoading,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
