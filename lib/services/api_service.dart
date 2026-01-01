@@ -13,12 +13,16 @@ class ApiService {
   // ---------------------------------------------------------------------------
   
   static String get baseUrl {
+    // Production URL (Render)
+    return 'https://flutter-banking-app.onrender.com/api';
+
+    /* 
+    // Local Development
     if (kIsWeb) {
       return 'http://127.0.0.1:8000/api';
     }
-    // Default to Android Emulator for mobile. 
-    // If using a Real Phone, change this to your specific IP!
-    return 'http://10.0.2.2:8000/api';
+    return 'http://10.0.2.2:8000/api'; // Android Emulator
+    */
   } 
   
   // Singleton pattern

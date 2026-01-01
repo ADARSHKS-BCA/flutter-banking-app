@@ -1,11 +1,13 @@
 # Miscellaneous
 *.class
+*.env
 *.log
 *.pyc
 *.swp
 .DS_Store
 .atom/
 .build/
+__pycache__/
 .buildlog/
 .history
 .svn/
