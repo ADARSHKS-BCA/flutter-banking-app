@@ -29,13 +29,50 @@ class SecureBankApp extends StatelessWidget {
         theme: ThemeData(
           primaryColor: AppColors.primaryBlue,
           scaffoldBackgroundColor: AppColors.background,
-          fontFamily: 'Roboto', // Assuming Roboto is available or default
+          fontFamily: 'Roboto',
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.primaryBlue,
             primary: AppColors.primaryBlue,
             secondary: AppColors.secondaryBlue,
+            surface: AppColors.surface,
+            error: AppColors.error,
           ),
           useMaterial3: true,
+          // Card theme
+          cardTheme: CardThemeData(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            color: Colors.white,
+          ),
+          // AppBar theme
+          appBarTheme: const AppBarTheme(
+            backgroundColor: AppColors.primaryBlue,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+          // Snackbar theme
+          snackBarTheme: SnackBarThemeData(
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          // Page transition
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+            },
+          ),
         ),
         home: const SplashScreen(),
       ),
@@ -54,7 +91,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    // Check login status on startup
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AuthProvider>(context, listen: false).checkLoginStatus();
     });

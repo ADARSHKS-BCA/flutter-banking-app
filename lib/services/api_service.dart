@@ -13,16 +13,11 @@ class ApiService {
   // ---------------------------------------------------------------------------
   
   static String get baseUrl {
-    // Production URL (Render)
-    return 'https://flutter-banking-app.onrender.com/api';
-
-    /* 
     // Local Development
-    if (kIsWeb) {
+    if (kIsWeb || defaultTargetPlatform == TargetPlatform.windows) {
       return 'http://127.0.0.1:8000/api';
     }
     return 'http://10.0.2.2:8000/api'; // Android Emulator
-    */
   } 
   
   // Singleton pattern
@@ -76,21 +71,29 @@ class ApiService {
   }
 
   Future<bool> login(String username, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/auth/login/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      await setToken(data['access']);
-      return true;
+      debugPrint('Login response status: ${response.statusCode}');
+      debugPrint('Login response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        await setToken(data['access']);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Login error: $e');
+      return false;
     }
-    return false;
   }
 
   // --- Bank Endpoints ---
